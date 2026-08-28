@@ -1,0 +1,44 @@
+/* Breakpoint 1: Móviles (Hasta 640px) */
+@media (max-width: 640px) {
+  body {
+    padding: 0.75rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+
+/* Breakpoint 2: Tabletas (Desde 641px hasta 1024px) */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .forms-wrapper {
+    flex-direction: row;
+  }
+
+  .card-form {
+    flex: 1;
+  }
+
+  .grid-routes {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Breakpoint 3: Escritorio (Desde 1025px en adelante) */
+@media (min-width: 1025px) {
+  .forms-wrapper {
+    flex-direction: row;
+  }
+
+  .card-form {
+    flex: 1;
+  }
+
+  .grid-routes {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

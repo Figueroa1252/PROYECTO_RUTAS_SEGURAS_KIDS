@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rutas Seguras Kids</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <header class="main-header">
+    <h1>Rutas Seguras Kids</h1>
+    <p>Gestión eficiente y segura de transporte escolar</p>
+  </header>
+
+  <main class="container">
+    <!-- Sección de Formularios -->
+    <section class="forms-wrapper">
+      <!-- Formulario para agregar/editar ruta -->
+      <article class="card-form">
+        <h2>Crear Nueva Ruta</h2>
+        <form id="route-form" novalidate>
+          <input type="hidden" id="route-id">
+          
+          <div class="form-group">
+            <label for="route-name">Nombre de la Ruta:</label>
+            <input type="text" id="route-name" required placeholder="Ej. Ruta Norte - Primaria">
+            <span class="error-msg" id="error-name"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="driver-name">Nombre del Conductor:</label>
+            <input type="text" id="driver-name" required placeholder="Ej. Carlos Mendoza">
+            <span class="error-msg" id="error-driver"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="departure-time">Hora de Salida:</label>
+            <input type="time" id="departure-time" required>
+            <span class="error-msg" id="error-time"></span>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="btn-save-route" class="btn primary">Guardar Ruta</button>
+            <button type="button" id="btn-generate-api" class="btn secondary">Cargar Conductor (API)</button>
+          </div>
+        </form>
+      </article>
+
+      <!-- Formulario para asignar estudiantes -->
+      <article class="card-form">
+        <h2>Asignar Estudiante</h2>
+        <form id="student-form" novalidate>
+          <div class="form-group">
+            <label for="select-route">Seleccionar Ruta:</label>
+            <select id="select-route" required>
+              <option value="">-- Seleccione una ruta --</option>
+            </select>
+            <span class="error-msg" id="error-select-route"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="student-name">Nombre del Estudiante:</label>
+            <input type="text" id="student-name" required placeholder="Ej. Laura Gómez">
+            <span class="error-msg" id="error-student"></span>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn primary">Asignar Estudiante</button>
+            <button type="button" id="btn-random-student" class="btn secondary">Obtener de API</button>
+          </div>
+        </form>
+      </article>
+    </section>
+
+    <!-- Contenedor dinámico de Web Components <route-card> -->
+    <section class="routes-container">
+      <h2>Rutas Registradas</h2>
+      <div id="routes-list" class="grid-routes">
+        <!-- Los elementos <route-card> se inyectarán dinámicamente aquí -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Script principal del proyecto -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
