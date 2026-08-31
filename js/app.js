@@ -1,142 +1,135 @@
 import './RouteCard.js';
-import { fetchRandomPerson } from './api.js';
-import { validateRequired, validateSelect } from './validators.js';
+import { fetchRandomPerson, fetchWeather } from './api.js';
 
-// Estado global de la aplicación
 let routes = [
   {
     id: '1',
     name: 'Ruta Norte - Primaria',
     driver: 'Carlos Mendoza',
     time: '06:30',
-    students: ['Ana Silva', 'Mateo Gómez']
+    students: [
+      { name: 'Ana Silva', picture: '' },
+      { name: 'Mateo Gómez', picture: '' }
+    ]
   }
 ];
 
-// Referencias del DOM
-const routeForm = document.getElementById('route-form');
-const studentForm = document.getElementById('student-form');
-const inputRouteId = document.getElementById('route-id');
-const inputRouteName = document.getElementById('route-name');
-const inputDriverName = document.getElementById('driver-name');
-const inputDepartureTime = document.getElementById('departure-time');
-const selectRoute = document.getElementById('select-route');
-const inputStudentName = document.getElementById('student-name');
-const routesList = document.getElementById('routes-list');
-
-const btnGenerateApiDriver = document.getElementById('btn-generate-api');
-const btnRandomStudent = document.getElementById('btn-random-student');
-
-// Inicialización
 document.addEventListener('DOMContentLoaded', () => {
   renderRoutes();
-  updateSelectOptions();
   setupEventListeners();
+  loadWeatherData();
 });
 
-function setupEventListeners() {
-  // Guardar o Editar Ruta
-  routeForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (!validateRouteForm()) return;
+function renderRoutes() {
+  const container = document.getElementById('routes-container');
+  const selectRoute = document.getElementById('select-route');
+  
+  container.innerHTML = '';
+  selectRoute.innerHTML = '<option value="">-- Seleccione una ruta --</option>';
 
-    const id = inputRouteId.value;
-    const name = inputRouteName.value.trim();
-    const driver = inputDriverName.value.trim();
-    const time = inputDepartureTime.value;
+  routes.forEach(route => {
+    // Render Web Component
+    const card = document.createElement('route-card');
+    card.setAttribute('route-id', route.id);
+    card.setAttribute('route-name', route.name);
+    card.setAttribute('driver-name', route.driver);
+    card.setAttribute('departure-time', route.time);
+    card.setAttribute('students', JSON.stringify(route.students));
+    container.appendChild(card);
 
-    if (id) {
-      // Editar ruta existente
-      const route = routes.find(r => r.id === id);
-      if (route) {
-        route.name = name;
-        route.driver = driver;
-        route.time = time;
-      }
-    } else {
-      // Crear nueva ruta
-      const newRoute = {
-        id: Date.now().toString(),
-        name,
-        driver,
-        time,
-        students: []
-      };
-      routes.push(newRoute);
-    }
-
-    resetRouteForm();
-    renderRoutes();
-    updateSelectOptions();
+    // Poblar Select
+    const option = document.createElement('option');
+    option.value = route.id;
+    option.textContent = route.name;
+    selectRoute.appendChild(option);
   });
 
-  // Asignar Estudiante a una Ruta
-  studentForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (!validateStudentForm()) return;
+  updateKPIs();
+}
 
-    const routeId = selectRoute.value;
-    const studentName = inputStudentName.value.trim();
+function updateKPIs() {
+  const totalRoutes = routes.length;
+  const totalStudents = routes.reduce((acc, r) => acc + r.students.length, 0);
+
+  document.getElementById('kpi-total-routes').textContent = totalRoutes;
+  document.getElementById('kpi-total-students').textContent = totalStudents;
+}
+
+function setupEventListeners() {
+  // Guardar / Editar Ruta
+  document.getElementById('route-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const id = document.getElementById('edit-route-id').value;
+    const name = document.getElementById('route-name').value.trim();
+    const driver = document.getElementById('driver-name').value.trim();
+    const time = document.getElementById('departure-time').value;
+
+    if (!name || !driver || !time) return;
+
+    if (id) {
+      const index = routes.findIndex(r => r.id === id);
+      if (index !== -1) routes[index] = { ...routes[index], name, driver, time };
+      document.getElementById('form-title').textContent = 'Crear Nueva Ruta';
+      document.getElementById('edit-route-id').value = '';
+    } else {
+      routes.push({ id: Date.now().toString(), name, driver, time, students: [] });
+    }
+
+    e.target.reset();
+    renderRoutes();
+  });
+
+  // Asignar Estudiante
+  document.getElementById('student-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const routeId = document.getElementById('select-route').value;
+    const studentName = document.getElementById('student-name').value.trim();
+
+    if (!routeId || !studentName) return;
 
     const route = routes.find(r => r.id === routeId);
     if (route) {
-      route.students.push(studentName);
-      inputStudentName.value = '';
+      route.students.push({ name: studentName, picture: '' });
+      e.target.reset();
       renderRoutes();
     }
   });
 
-  // Consumir API pública para Autocompletar Conductor
-  btnGenerateApiDriver.addEventListener('click', async () => {
-    try {
-      btnGenerateApiDriver.disabled = true;
-      btnGenerateApiDriver.textContent = 'Cargando...';
-      const person = await fetchRandomPerson();
-      inputDriverName.value = person.name;
-    } catch (err) {
-      alert('No se pudo obtener el conductor de la API.');
-    } finally {
-      btnGenerateApiDriver.disabled = false;
-      btnGenerateApiDriver.textContent = 'Cargar Conductor (API)';
-    }
-  });
+ // Consumir API Conductor
+document.getElementById('btn-fetch-driver').addEventListener('click', async () => {
+  const person = await fetchRandomPerson();
+  if (person) {
+    document.getElementById('driver-name').value = person.name;
+  }
+});
 
-  // Consumir API pública para Autocompletar Estudiante
-  btnRandomStudent.addEventListener('click', async () => {
-    try {
-      btnRandomStudent.disabled = true;
-      btnRandomStudent.textContent = 'Cargando...';
-      const person = await fetchRandomPerson();
-      inputStudentName.value = person.name;
-    } catch (err) {
-      alert('No se pudo obtener el estudiante de la API.');
-    } finally {
-      btnRandomStudent.disabled = false;
-      btnRandomStudent.textContent = 'Obtener de API';
-    }
-  });
+// Consumir API Estudiante
+document.getElementById('btn-fetch-student').addEventListener('click', async () => {
+  const person = await fetchRandomPerson();
+  if (person) {
+    document.getElementById('student-name').value = person.name;
+    document.getElementById('student-name').dataset.picture = person.picture;
+  }
+});
 
-  // Escuchar CustomEvents emitidos desde los Web Components <route-card>
-  routesList.addEventListener('delete-route', (e) => {
-    const { routeId } = e.detail;
-    routes = routes.filter(r => r.id !== routeId);
+  // Custom Events del Web Component
+  document.addEventListener('delete-route', (e) => {
+    routes = routes.filter(r => r.id !== e.detail.routeId);
     renderRoutes();
-    updateSelectOptions();
   });
 
-  routesList.addEventListener('edit-route', (e) => {
-    const { routeId } = e.detail;
-    const route = routes.find(r => r.id === routeId);
+  document.addEventListener('edit-route', (e) => {
+    const route = routes.find(r => r.id === e.detail.routeId);
     if (route) {
-      inputRouteId.value = route.id;
-      inputRouteName.value = route.name;
-      inputDriverName.value = route.driver;
-      inputDepartureTime.value = route.time;
-      document.getElementById('btn-save-route').textContent = 'Actualizar Ruta';
+      document.getElementById('edit-route-id').value = route.id;
+      document.getElementById('route-name').value = route.name;
+      document.getElementById('driver-name').value = route.driver;
+      document.getElementById('departure-time').value = route.time;
+      document.getElementById('form-title').textContent = 'Editar Ruta';
     }
   });
 
-  routesList.addEventListener('delete-student', (e) => {
+  document.addEventListener('delete-student', (e) => {
     const { routeId, studentIndex } = e.detail;
     const route = routes.find(r => r.id === routeId);
     if (route) {
@@ -145,54 +138,11 @@ function setupEventListeners() {
     }
   });
 }
-
-// Renderizado de las tarjetas <route-card>
-function renderRoutes() {
-  routesList.innerHTML = '';
-  
-  if (routes.length === 0) {
-    routesList.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #64748b;">No hay rutas registradas.</p>';
-    return;
+async function loadWeatherData() {
+  const weather = await fetchWeather();
+  if (weather) {
+    document.getElementById('weather-temp').textContent = `🌤️ ${weather.temperature} °C`;
+  } else {
+    document.getElementById('weather-temp').textContent = `⚠️ N/A`;
   }
-
-  routes.forEach(route => {
-    const card = document.createElement('route-card');
-    card.setAttribute('route-id', route.id);
-    card.setAttribute('route-name', route.name);
-    card.setAttribute('driver-name', route.driver);
-    card.setAttribute('departure-time', route.time);
-    card.setAttribute('students', JSON.stringify(route.students));
-    routesList.appendChild(card);
-  });
-}
-
-// Actualizar las opciones del select de rutas
-function updateSelectOptions() {
-  selectRoute.innerHTML = '<option value="">-- Seleccione una ruta --</option>';
-  routes.forEach(route => {
-    const option = document.createElement('option');
-    option.value = route.id;
-    option.textContent = route.name;
-    selectRoute.appendChild(option);
-  });
-}
-
-// Validaciones
-function validateRouteForm() {
-  const isNameValid = validateRequired(inputRouteName, document.getElementById('error-name'), 'Ingrese el nombre de la ruta');
-  const isDriverValid = validateRequired(inputDriverName, document.getElementById('error-driver'), 'Ingrese el nombre del conductor');
-  const isTimeValid = validateRequired(inputDepartureTime, document.getElementById('error-time'), 'Seleccione la hora de salida');
-  return isNameValid && isDriverValid && isTimeValid;
-}
-
-function validateStudentForm() {
-  const isSelectValid = validateSelect(selectRoute, document.getElementById('error-select-route'), 'Seleccione una ruta válida');
-  const isStudentValid = validateRequired(inputStudentName, document.getElementById('error-student'), 'Ingrese el nombre del estudiante');
-  return isSelectValid && isStudentValid;
-}
-
-function resetRouteForm() {
-  routeForm.reset();
-  inputRouteId.value = '';
-  document.getElementById('btn-save-route').textContent = 'Guardar Ruta';
 }

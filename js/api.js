@@ -10,12 +10,7 @@ const BASE_URL = 'https://randomuser.me/api/';
  */
 export async function fetchRandomPerson() {
   try {
-    const response = await fetch(`${BASE_URL}?nat=es,us`);
-
-    if (!response.ok) {
-      throw new Error(`Error en la petición HTTP: ${response.status}`);
-    }
-
+    const response = await fetch(BASE_URL);
     const data = await response.json();
     const user = data.results[0];
 
@@ -27,6 +22,20 @@ export async function fetchRandomPerson() {
     };
   } catch (error) {
     console.error('Error al consumir la API pública:', error);
-    throw error;
+    return null;
+  }
+}
+/**
+ * Servicio para obtener el clima actual en vivo (Open-Meteo / Weather API)
+ * Por defecto consulta las coordenadas de la ciudad de la ruta (ej. San Gil / Bogotá).
+ */
+export async function fetchWeather(lat = 6.5543, lon = -73.1367) {
+  try {
+    const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+    const data = await response.json();
+    return data.current_weather; // Retorna { temperature: 24.5, weathercode: 1, windspeed: 10.2, ... }
+  } catch (error) {
+    console.error('Error al obtener el clima:', error);
+    return null;
   }
 }
