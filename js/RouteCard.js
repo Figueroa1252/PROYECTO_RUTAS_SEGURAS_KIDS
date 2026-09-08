@@ -63,16 +63,15 @@ export class RouteCard extends HTMLElement {
         <div>
           <small style="color: #64748b; font-weight: 600;">Estudiantes Asignados (${studentsData.length})</small>
           <ul class="student-list">
-            ${
-              studentsData.length === 0
-                ? '<li style="color:#94a3b8; font-size: 0.8rem; padding: 0.5rem 0;">Ningún estudiante en la ruta</li>'
-                : studentsData.map((st, index) => {
-                    const name = typeof st === 'object' ? st.name : st;
-                    const photo = (typeof st === 'object' && st.picture) 
-                      ? st.picture 
-                      : `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=2563eb&color=fff&size=64`;
+            ${studentsData.length === 0
+        ? '<li style="color:#94a3b8; font-size: 0.8rem; padding: 0.5rem 0;">Ningún estudiante en la ruta</li>'
+        : studentsData.map((st, index) => {
+          const name = typeof st === 'object' ? st.name : st;
+          const photo = (typeof st === 'object' && st.picture)
+            ? st.picture
+            : `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=2563eb&color=fff&size=64`;
 
-                    return `
+          return `
                       <li class="student-item">
                         <div class="student-profile">
                           <img class="avatar" src="${photo}" alt="${name}">
@@ -81,8 +80,8 @@ export class RouteCard extends HTMLElement {
                         <button class="btn-remove-student" data-index="${index}">✕</button>
                       </li>
                     `;
-                  }).join('')
-            }
+        }).join('')
+      }
           </ul>
         </div>
 

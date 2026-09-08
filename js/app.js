@@ -79,18 +79,61 @@ function setupEventListeners() {
     renderRoutes();
   });
 
-  // Asignar Estudiante
+  // Asignar Estudiante (con validación de vacíos y duplicados)
   document.getElementById('student-form').addEventListener('submit', (e) => {
     e.preventDefault();
-    const routeId = document.getElementById('select-route').value;
-    const studentName = document.getElementById('student-name').value.trim();
+    
+    const routeSelect = document.getElementById('select-route');
+    const studentInput = document.getElementById('student-name');
+    const routeId = routeSelect.value;
+    const studentName = studentInput.value.trim();
 
-    if (!routeId || !studentName) return;
+    const errRoute = document.getElementById('err-select-route');
+    const errStudent = document.getElementById('err-student-name');
+
+    // Resetear mensajes de error
+    if (errRoute) errRoute.textContent = '';
+    if (errStudent) errStudent.textContent = '';
+
+    // 1. Validar campos vacíos
+    let hasError = false;
+
+    if (!routeId) {
+      if (errRoute) errRoute.textContent = 'Selecciona una ruta.';
+      hasError = true;
+    }
+
+    if (studentName === '') {
+      if (errStudent) errStudent.textContent = 'Ingresa el nombre del estudiante.';
+      hasError = true;
+    }
+
+    if (hasError) return;
 
     const route = routes.find(r => r.id === routeId);
+
     if (route) {
-      route.students.push({ name: studentName, picture: '' });
+      // 2. Validar que no esté duplicado
+      const isDuplicate = route.students.some(
+        s => s.name.toLowerCase() === studentName.toLowerCase()
+      );
+
+      if (isDuplicate) {
+        if (errStudent) errStudent.textContent = 'Este estudiante ya está en la ruta.';
+        return;
+      }
+
+      // Guardar foto si viene de la API
+      const picture = studentInput.dataset.picture || '';
+
+      // Agregar a la ruta
+      route.students.push({ name: studentName, picture: picture });
+
+      // Limpiar formulario y data-picture
       e.target.reset();
+      delete studentInput.dataset.picture;
+
+      // Actualizar vista
       renderRoutes();
     }
   });

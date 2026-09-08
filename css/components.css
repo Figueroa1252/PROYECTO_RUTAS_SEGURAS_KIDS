@@ -7,3 +7,39 @@ route-card {
 route-card:hover {
   transform: translateY(-2px);
 }
+
+/* Mensajes de error de validación */
+.error-msg {
+  color: #ef4444;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  display: block;
+  min-height: 1.2em;
+}
+
+/* Estilos de la lista dentro de <route-card> */
+.student-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.btn-delete-student {
+  background-color: #ef4444;
+  color: #ffffff;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-delete-student:hover {
+  background-color: #dc2626;
+}
