@@ -4,12 +4,32 @@ import { fetchRandomPerson, fetchWeather } from './api.js';
 let routes = [
   {
     id: '1',
-    name: 'Ruta Norte - Primaria',
+    name: 'Ruta Norte',
     driver: 'Carlos Mendoza',
     time: '06:30',
     students: [
       { name: 'Ana Silva', picture: '' },
       { name: 'Mateo Gómez', picture: '' }
+    ]
+  },
+  {
+    id: '2',
+    name: 'Ruta Sur',
+    driver: 'Marta Gómez',
+    time: '07:00',
+    students: [
+      { name: 'Carlos Pérez', picture: '' },
+      { name: 'Lucia Rodríguez', picture: '' }
+    ]
+  },
+  {
+    id: '3',
+    name: 'Ruta Centro',
+    driver: 'Jorge Martínez',
+    time: '07:15',
+    students: [
+      { name: 'Andrés López', picture: '' },
+      { name: 'Sofía Martínez', picture: '' }
     ]
   }
 ];
@@ -18,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderRoutes();
   setupEventListeners();
   loadWeatherData();
+  initStudentFilter();
 });
 
 function renderRoutes() {
@@ -37,7 +58,7 @@ function renderRoutes() {
     card.setAttribute('students', JSON.stringify(route.students));
     container.appendChild(card);
 
-    // Poblar Select
+    // Poblar Select del formulario de asignación
     const option = document.createElement('option');
     option.value = route.id;
     option.textContent = route.name;
@@ -45,6 +66,7 @@ function renderRoutes() {
   });
 
   updateKPIs();
+  refreshStudentFilterUI(); // Mantiene el filtro actualizado al cambiar rutas
 }
 
 function updateKPIs() {
@@ -138,22 +160,22 @@ function setupEventListeners() {
     }
   });
 
- // Consumir API Conductor
-document.getElementById('btn-fetch-driver').addEventListener('click', async () => {
-  const person = await fetchRandomPerson();
-  if (person) {
-    document.getElementById('driver-name').value = person.name;
-  }
-});
+  // Consumir API Conductor
+  document.getElementById('btn-fetch-driver').addEventListener('click', async () => {
+    const person = await fetchRandomPerson();
+    if (person) {
+      document.getElementById('driver-name').value = person.name;
+    }
+  });
 
-// Consumir API Estudiante
-document.getElementById('btn-fetch-student').addEventListener('click', async () => {
-  const person = await fetchRandomPerson();
-  if (person) {
-    document.getElementById('student-name').value = person.name;
-    document.getElementById('student-name').dataset.picture = person.picture;
-  }
-});
+  // Consumir API Estudiante
+  document.getElementById('btn-fetch-student').addEventListener('click', async () => {
+    const person = await fetchRandomPerson();
+    if (person) {
+      document.getElementById('student-name').value = person.name;
+      document.getElementById('student-name').dataset.picture = person.picture;
+    }
+  });
 
   // Custom Events del Web Component
   document.addEventListener('delete-route', (e) => {
@@ -181,6 +203,7 @@ document.getElementById('btn-fetch-student').addEventListener('click', async () 
     }
   });
 }
+
 async function loadWeatherData() {
   const weather = await fetchWeather();
   if (weather) {
@@ -188,4 +211,72 @@ async function loadWeatherData() {
   } else {
     document.getElementById('weather-temp').textContent = `⚠️ N/A`;
   }
+}
+
+// ==========================================
+// Lógica del Filtro Dinámico de Estudiantes
+// ==========================================
+function initStudentFilter() {
+  const filterSelect = document.getElementById('filter-route');
+  if (!filterSelect) return;
+
+  filterSelect.addEventListener('change', (e) => {
+    renderFilteredStudents(e.target.value);
+  });
+
+  refreshStudentFilterUI();
+}
+
+function refreshStudentFilterUI() {
+  const filterSelect = document.getElementById('filter-route');
+  if (!filterSelect) return;
+
+  const currentValue = filterSelect.value || 'Todas';
+
+  // Poblar dinámicamente las opciones con las rutas vigentes
+  filterSelect.innerHTML = '<option value="Todas">Todas</option>';
+  routes.forEach(route => {
+    filterSelect.innerHTML += `<option value="${route.name}">${route.name}</option>`;
+  });
+
+  filterSelect.value = currentValue;
+  renderFilteredStudents(filterSelect.value);
+}
+
+function renderFilteredStudents(selectedRoute) {
+  const listContainer = document.getElementById('students-list');
+  if (!listContainer) return;
+
+  listContainer.innerHTML = '';
+
+  let allStudents = [];
+  routes.forEach(route => {
+    route.students.forEach(student => {
+      allStudents.push({
+        name: student.name,
+        route: route.name
+      });
+    });
+  });
+
+  const filtered = selectedRoute === 'Todas'
+    ? allStudents
+    : allStudents.filter(s => s.route === selectedRoute);
+
+  filtered.forEach(student => {
+    const li = document.createElement('li');
+    li.className = `student-item ${getRouteBadgeClass(student.route)}`;
+    li.innerHTML = `
+      <span>👤 ${student.name}</span>
+      <small>${student.route}</small>
+    `;
+    listContainer.appendChild(li);
+  });
+}
+
+function getRouteBadgeClass(routeName) {
+  if (routeName.includes('Norte')) return 'bg-norte';
+  if (routeName.includes('Sur')) return 'bg-sur';
+  if (routeName.includes('Centro')) return 'bg-centro';
+  return 'bg-default';
 }

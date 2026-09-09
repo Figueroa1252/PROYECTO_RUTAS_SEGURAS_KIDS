@@ -110,3 +110,30 @@ body {
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.5rem;
 }
+/* ==========================================
+   Filtro de Estudiantes por Ruta
+   ========================================== */
+.students-filter-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.student-item {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  color: #ffffff;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Colores según la ruta */
+.bg-norte { background-color: #2563eb; } /* Azul */
+.bg-sur { background-color: #16a34a; }   /* Verde */
+.bg-centro { background-color: #ea580c; }/* Naranja */
+.bg-default { background-color: #6b7280; }/* Gris */

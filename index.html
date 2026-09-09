@@ -77,7 +77,8 @@
         <form id="student-form">
           <div class="form-group">
             <label for="select-route">Seleccionar Ruta:</label>
-            <select id="select-route">
+            <select id="select-route">  
+
               <option value="">-- Seleccione una ruta --</option>
             </select>
             <span class="error-msg" id="err-select-route"></span>
@@ -97,6 +98,24 @@
       </section>
 
     </div>
+
+<!-- Sección Filtro de Estudiantes -->
+<section class="card-form" style="margin-bottom: 2rem;">
+  <h2>Filtro de Estudiantes por Ruta</h2>
+  <div class="form-group">
+    <label for="filter-route">Filtrar por Ruta:</label>
+    <select id="filter-route">
+      <option value="Todas">Todas</option>
+      <option value="Ruta Norte">Ruta Norte</option>
+      <option value="Ruta Sur">Ruta Sur</option>
+      <option value="Ruta Centro">Ruta Centro</option>
+    </select>
+  </div>
+  
+  <ul id="students-list" class="students-filter-list">
+    <!-- Aquí JavaScript renderizará los estudiantes filtrados -->
+  </ul>
+</section>
 
     <!-- Sección de Rutas Registradas -->
     <main>
